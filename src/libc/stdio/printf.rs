@@ -292,27 +292,27 @@ pub fn printf_inner<const NS_LOG: bool, F: Fn(&Mem, GuestUSize) -> u8>(
                     format!("{int}")
                 };
 
+                let display_str = if prepend_sign && int >= 0 {
+                    format!("+{int_with_precision}")
+                } else {
+                    int_with_precision
+                };
+
                 if pad_width > 0 {
                     let pad_width = pad_width as usize;
                     if pad_char == '0' && precision.is_none() {
-                        if prepend_sign {
-                            assert!(int != 0); // TODO
-                            assert!(pad_width > 0);
-                            if int > 0 {
-                                write!(&mut res, "+{:0>1$}", int, pad_width - 1).unwrap();
-                            } else {
-                                write!(&mut res, "-{:0>1$}", int.abs(), pad_width - 1).unwrap();
-                            }
+                        if prepend_sign && int >= 0 {
+                            write!(&mut res, "+{:0>1$}", int, pad_width.saturating_sub(1)).unwrap();
+                        } else if int < 0 {
+                            write!(&mut res, "-{:0>1$}", int.abs(), pad_width.saturating_sub(1)).unwrap();
                         } else {
                             write!(&mut res, "{int:0>pad_width$}").unwrap();
                         }
                     } else {
-                        assert!(!prepend_sign);
-                        write!(&mut res, "{int_with_precision:>pad_width$}").unwrap();
+                        write!(&mut res, "{display_str:>pad_width$}").unwrap();
                     }
                 } else {
-                    assert!(!prepend_sign);
-                    res.extend_from_slice(int_with_precision.as_bytes());
+                    res.extend_from_slice(display_str.as_bytes());
                 }
             }
             b'@' if NS_LOG => {

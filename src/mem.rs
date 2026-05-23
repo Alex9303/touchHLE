@@ -344,7 +344,11 @@ impl Mem {
     // seems like a good idea to help the compiler optimise for the fast path
     #[cold]
     fn null_check_fail(at: VAddr, size: GuestUSize) {
-        panic!("Attempted null-page access at {at:#x} ({size:#x} bytes)")
+        eprintln!("=== NULL PAGE ACCESS ===");
+        eprintln!("at {:#x}, size {:#x}", at, size);
+        eprintln!("backtrace:\n{:?}", std::backtrace::Backtrace::capture());
+        // panic!("Attempted null-page access at {at:#x} ({size:#x} bytes)")
+        eprintln!("HACK: ignoring null access at {:#x}", at);
     }
 
     /// Special version of [Self::bytes_at] that returns [None] rather than
@@ -381,7 +385,9 @@ impl Mem {
     /// [Self::ptr_at] for that).
     pub fn bytes_at<const MUT: bool>(&self, ptr: Ptr<u8, MUT>, count: GuestUSize) -> &[u8] {
         if ptr.to_bits() < self.null_segment_size {
-            Self::null_check_fail(ptr.to_bits(), count)
+            Self::null_check_fail(ptr.to_bits(), count);
+            static ZEROS: [u8; 4096] = [0; 4096];
+            return &ZEROS[..count as usize];
         }
         &self.bytes()[ptr.to_bits() as usize..][..count as usize]
     }

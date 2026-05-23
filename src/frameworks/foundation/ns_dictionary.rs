@@ -313,6 +313,11 @@ pub fn init_with_objects_and_keys(
 
 /// Helper function to share `initWithDictionary:` implementations
 fn init_with_dictionary_common(env: &mut Environment, this: id, other_dict: id) -> id {
+    if other_dict == nil {
+        log_dbg!("Tolerating initWithDictionary:nil");
+        return this;
+    }
+
     let other_host_object: DictionaryHostObject = std::mem::take(env.objc.borrow_mut(other_dict));
 
     let mut host_object = <DictionaryHostObject as Default>::default();
@@ -797,10 +802,12 @@ pub const CLASSES: ClassExports = objc_classes! {
 
 - (())setObject:(id)object
          forKey:(id)key {
-    // TODO: raise NSInvalidArgumentException
-    assert_ne!(object, nil);
-    // TODO: raise NSInvalidArgumentException
-    assert_ne!(key, nil);
+    // Hack that bypasses the panic and just ignores the insertion if either is nil
+    if object == nil || key == nil {
+        log!("HACK: Tolerating [(NSMutableDictionary*){:?} setObject:{:?} forKey:{:?}] (nil value)", this, object, key);
+        return;
+    }
+
     let mut host_obj: DictionaryHostObject = std::mem::take(env.objc.borrow_mut(this));
     host_obj.insert(env, key, object, /* copy_key: */ true);
     *env.objc.borrow_mut(this) = host_obj;

@@ -36,8 +36,19 @@ pub const CLASSES: ClassExports = objc_classes! {
     this
 }
 
+- (id)initWithCoder:(id)coder {
+    log!("TODO: [(UIBarButtonItem*) {:?} initWithCoder:{:?}]", this, coder);
+    this
+}
+
 - (())setEnabled:(bool)enabled {
     log!("TODO: [(UIBarButtonItem*){:?} setEnabled:{}]", this, enabled);
+}
+
+- (())addTarget:(id)target 
+         action:(SEL)action 
+forControlEvents:(u32)control_events {
+    log!("TODO: [(UIBarButtonItem*){:?} addTarget:{:?} action:{:?} forControlEvents:{}]", this, target, action, control_events);
 }
 
 @end

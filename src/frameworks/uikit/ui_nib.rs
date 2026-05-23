@@ -274,7 +274,11 @@ pub const CLASSES: ClassExports = objc_classes! {
     } = env.objc.borrow(this);
 
     let selector = to_rust_string(env, label);
-    let action = env.objc.lookup_selector(&selector).unwrap();
+    let action = if let Some(sel) = env.objc.lookup_selector(&selector) {
+        sel
+    } else {
+        env.objc.register_host_selector(selector.to_string(), &mut env.mem)
+    };
 
     () = msg![env; source addTarget:destination action:action forControlEvents:event_mask];
 }

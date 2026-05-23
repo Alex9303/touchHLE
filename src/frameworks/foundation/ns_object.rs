@@ -125,6 +125,14 @@ pub const CLASSES: ClassExports = objc_classes! {
     env.objc.dealloc_object(this, &mut env.mem)
 }
 
+- (())willChangeValueForKey:(id)_key {
+    // TODO
+}
+
+- (())didChangeValueForKey:(id)_key {
+    // TODO
+}
+
 - (Class)class {
     ObjC::read_isa(this, &env.mem)
 }

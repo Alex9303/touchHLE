@@ -6,7 +6,7 @@
 
 use crate::dyld::{ConstantExports, HostConstant};
 use crate::frameworks::foundation::NSInteger;
-use crate::objc::{id, nil, release, retain, ClassExports, HostObject, NSZonePtr};
+use crate::objc::{id, nil, release, retain, ClassExports, HostObject, NSZonePtr, autorelease, msg};
 use crate::objc_classes;
 
 /// `NSString*`
@@ -40,6 +40,14 @@ pub const CLASSES: ClassExports = objc_classes! {
     env.objc.alloc_object(this, host_object, &mut env.mem)
 }
 
++ (id)errorWithDomain:(id)domain
+                 code:(NSInteger)code
+             userInfo:(id)userInfo {
+    let err = msg![env; this alloc];
+    let err = msg![env; err initWithDomain:domain code:code userInfo:userInfo];
+    autorelease(env, err)
+}
+
 - (id)initWithDomain:(NSErrorDomain)domain
                 code:(NSInteger)code
             userInfo:(id)user_info {
@@ -62,6 +70,14 @@ pub const CLASSES: ClassExports = objc_classes! {
 
 - (NSInteger)code {
     env.objc.borrow::<ErrorHostObject>(this).code
+}
+
+- (id)description {
+    let &ErrorHostObject { domain, code, .. } = env.objc.borrow(this);
+    let domain_str = crate::frameworks::foundation::ns_string::to_rust_string(env, domain);
+    let rust_string = format!("Error Domain={} Code={}", domain_str, code);
+    let ns_string = crate::frameworks::foundation::ns_string::from_rust_string(env, rust_string);
+    autorelease(env, ns_string)
 }
 
 @end

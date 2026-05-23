@@ -21,6 +21,12 @@ pub const CLASSES: ClassExports = objc_classes! {
 - (())setDelegate:(id)_delegate {
     // TODO
 }
+- (())setDataSource:(id)_dataSource {
+    // TODO
+}
+- (())reloadAllComponents {
+    log!("TODO: [(UIPickerView*) {:?} reloadAllComponents]", this);
+}
 
 @end
 

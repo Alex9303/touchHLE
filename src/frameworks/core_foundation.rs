@@ -80,8 +80,8 @@ use crate::abi::GuestArg;
 use crate::dyld::FunctionExports;
 use crate::environment::Environment;
 use crate::frameworks::foundation::ns_string::to_rust_string;
-use crate::mem::SafeRead;
-use crate::objc::id;
+use crate::mem::{SafeRead, ConstVoidPtr};
+use crate::objc::{id, nil};
 use crate::{export_c_func, impl_GuestRet_for_large_struct, msg};
 
 pub const kCFNotFound: CFIndex = -1;
@@ -120,4 +120,31 @@ fn CFShow(env: &mut Environment, obj: CFTypeRef) {
     log!("{}", to_rust_string(env, description));
 }
 
-const FUNCTIONS: FunctionExports = &[export_c_func!(CFShow(_))];
+fn CFHTTPMessageCreateRequest(
+    _env: &mut Environment,
+    alloc: ConstVoidPtr,
+    request_method: id,
+    url: id,
+    http_version: id,
+) -> id {
+    log!("TODO: CFHTTPMessageCreateRequest(alloc: {:?}, method: {:?}, url: {:?}, version: {:?})", alloc, request_method, url, http_version);
+
+    nil
+}
+
+fn SecItemCopyMatching(
+    _env: &mut Environment,
+    query: id,   // CFDictionaryRef
+    result: u32, // CFTypeRef* (Guest address)
+) -> i32 {       // OSStatus
+    log!("TODO: SecItemCopyMatching(query: {:?}, result: {:#x})", query, result);
+
+    // errSecItemNotFound = -25300
+    -25300
+}
+
+const FUNCTIONS: FunctionExports = &[
+    export_c_func!(CFShow(_)),
+    export_c_func!(CFHTTPMessageCreateRequest(_, _, _, _)),
+    export_c_func!(SecItemCopyMatching(_, _)),
+];

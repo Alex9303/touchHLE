@@ -6,7 +6,7 @@
 //! `UIWebView`.
 
 use crate::frameworks::foundation::ns_string::to_rust_string;
-use crate::msg;
+use crate::{msg, msg_super};
 use crate::objc::{id, nil, objc_classes, ClassExports};
 use std::borrow::Cow;
 
@@ -17,8 +17,12 @@ pub const CLASSES: ClassExports = objc_classes! {
 @implementation UIWebView: UIView
 
 // NSCoding implementation
-- (id)initWithCoder:(id)_coder {
-    todo!()
+- (id)initWithCoder:(id)coder {
+    let this: id = msg_super![env; this initWithCoder:coder];
+    if this != nil {
+        log!("TODO: [(UIWebView*) {:?} initWithCoder:{:?}]", this, coder);
+    }
+    this
 }
 
 - (())setScalesPageToFit:(bool)_scales {
@@ -48,6 +52,11 @@ textEncodingName:(id)_encoding // NSString*
         Cow::default()
     };
     log!("TODO: [(UIWebView*) {:?} loadData:MIMEType:{} textEncodingName:baseURL:]", this, mime);
+}
+
+- (())setDataDetectorTypes:(u64)dataDetectorTypes {
+    log!("TODO: [(UIWebView*) {:?} setDataDetectorTypes:{:?}]", this, dataDetectorTypes);
+    // TODO: Implement data detector types configuration
 }
 
 @end

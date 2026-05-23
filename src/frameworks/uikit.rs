@@ -21,6 +21,7 @@ pub mod ui_device;
 pub mod ui_event;
 pub mod ui_font;
 pub mod ui_geometry;
+pub mod ui_gesture_recognizer;
 pub mod ui_graphics;
 pub mod ui_image;
 pub mod ui_image_picker_controller;
@@ -44,6 +45,7 @@ pub const DYLIB: crate::dyld::HostDylib = crate::dyld::HostDylib {
         ui_device::CLASSES,
         ui_event::CLASSES,
         ui_font::CLASSES,
+        ui_gesture_recognizer::CLASSES,
         ui_image::CLASSES,
         ui_image_picker_controller::CLASSES,
         ui_local_notification::CLASSES,
@@ -62,8 +64,10 @@ pub const DYLIB: crate::dyld::HostDylib = crate::dyld::HostDylib {
         ui_view::ui_image_view::CLASSES,
         ui_view::ui_label::CLASSES,
         ui_view::ui_picker_view::CLASSES,
+        ui_view::ui_progress_view::CLASSES,
         ui_view::ui_scroll_view::CLASSES,
         ui_view::ui_scroll_view::ui_text_view::CLASSES,
+        ui_view::ui_table_view::CLASSES,
         ui_view::ui_toolbar::CLASSES,
         ui_view::ui_web_view::CLASSES,
         ui_view::ui_window::CLASSES,

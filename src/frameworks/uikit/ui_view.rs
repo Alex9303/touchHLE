@@ -13,7 +13,9 @@ pub mod ui_control;
 pub mod ui_image_view;
 pub mod ui_label;
 pub mod ui_picker_view;
+pub mod ui_progress_view;
 pub mod ui_scroll_view;
+pub mod ui_table_view;
 pub mod ui_toolbar;
 pub mod ui_web_view;
 pub mod ui_window;
@@ -27,7 +29,7 @@ use crate::frameworks::foundation::ns_string::get_static_str;
 use crate::frameworks::foundation::{ns_array, NSInteger, NSUInteger};
 use crate::objc::{
     autorelease, id, msg, msg_class, nil, objc_classes, release, retain, todo_objc_setter, Class,
-    ClassExports, HostObject, NSZonePtr, ObjC,
+    ClassExports, HostObject, NSZonePtr, ObjC, SEL,
 };
 use crate::Environment;
 
@@ -109,6 +111,66 @@ pub const CLASSES: ClassExports = objc_classes! {
 
 + (Class)layerClass {
     env.objc.get_known_class("CALayer", &mut env.mem)
+}
+
++ (())setAnimationsEnabled:(bool)_enabled {
+    // TODO
+}
+
++ (bool)areAnimationsEnabled {
+    true
+}
+
++ (())beginAnimations:(id)animation_id context:(id)context {
+    log!("TODO: [(UIView) beginAnimations:{:?} context:{:?}]", animation_id, context);
+}
+
++ (())commitAnimations {
+    log!("TODO: [(UIView) commitAnimations]");
+}
+
++ (())setAnimationDuration:(f64)duration {
+    log!("TODO: [(UIView) setAnimationDuration:{}]", duration);
+}
+
++ (())setAnimationDelegate:(id)delegate {
+    log!("TODO: [(UIView) setAnimationDelegate:{:?}]", delegate);
+}
+
++ (())setAnimationStartDate:(id)start_date {
+    log!("TODO: [(UIView) setAnimationStartDate:{:?}]", start_date);
+}
+
++ (())setAnimationWillStartSelector:(SEL)selector {
+    log!("TODO: [(UIView) setAnimationWillStartSelector:{:?}]", selector);
+}
+
++ (())setAnimationDidStopSelector:(SEL)selector {
+    log!("TODO: [(UIView) setAnimationDidStopSelector:{:?}]", selector);
+}
+
++ (())setAnimationDelay:(f64)delay {
+    log!("TODO: [(UIView) setAnimationDelay:{}]", delay);
+}
+
++ (())setAnimationCurve:(i32)curve {
+    log!("TODO: [(UIView) setAnimationCurve:{}]", curve);
+}
+
++ (())setAnimationRepeatCount:(f32)repeat_count {
+    log!("TODO: [(UIView) setAnimationRepeatCount:{}]", repeat_count);
+}
+
++ (())setAnimationRepeatAutoreverses:(bool)repeat_autoreverses {
+    log!("TODO: [(UIView) setAnimationRepeatAutoreverses:{}]", repeat_autoreverses);
+}
+
++ (())setAnimationBeginsFromCurrentState:(bool)from_current_state {
+    log!("TODO: [(UIView) setAnimationBeginsFromCurrentState:{}]", from_current_state);
+}
+
++ (())setAnimationTransition:(i32)transition forView:(id)view cache:(bool)cache {
+    log!("TODO: [(UIView) setAnimationTransition:{} forView:{:?} cache:{}]", transition, view, cache);
 }
 
 // TODO: accessors etc
@@ -320,6 +382,16 @@ pub const CLASSES: ClassExports = objc_classes! {
 }
 
 - (())insertSubview:(id)view belowSubview:(id)sibling {
+    if view == nil {
+        log_dbg!("Tolerating [(UIView*){:?} insertSubview:nil belowSubview:{:?}]", this, sibling);
+        return;
+    }
+
+    if sibling == nil {
+        () = msg![env; this addSubview:view];
+        return;
+    }
+
     retain(env, view);
     () = msg![env; view removeFromSuperview];
 
@@ -709,6 +781,18 @@ pub const CLASSES: ClassExports = objc_classes! {
 }
 - (CGFloat)contentScaleFactor {
     1.0 // TODO
+}
+
+- (())addGestureRecognizer:(id)_gestureRecognizer {
+    // TODO
+}
+
+- (())removeGestureRecognizer:(id)_gestureRecognizer {
+    // TODO
+}
+
+- (id)gestureRecognizers {
+    nil
 }
 
 @end

@@ -49,6 +49,10 @@ fn CFRunLoopRunInMode(
     1 // kCFRunLoopRunFinished
 }
 
+fn CFRunLoopStop(_env: &mut Environment, rl: id) {
+    log!("TODO: CFRunLoopStop(rl: {:?})", rl);
+}
+
 pub const kCFRunLoopCommonModes: &str = "kCFRunLoopCommonModes";
 pub const kCFRunLoopDefaultMode: &str = "kCFRunLoopDefaultMode";
 
@@ -67,4 +71,5 @@ pub const FUNCTIONS: FunctionExports = &[
     export_c_func!(CFRunLoopGetCurrent()),
     export_c_func!(CFRunLoopGetMain()),
     export_c_func!(CFRunLoopRunInMode(_, _, _)),
+    export_c_func!(CFRunLoopStop(_)),
 ];

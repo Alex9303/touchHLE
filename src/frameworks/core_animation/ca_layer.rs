@@ -48,6 +48,7 @@ pub(super) struct CALayerHostObject {
     pub(super) opacity: f32,
     pub(super) background_color: Option<CGColorHostObject>,
     pub(super) corner_radius: CGFloat,
+    pub(super) masks_to_bounds: bool,
     pub(super) needs_display: bool,
     pub(super) needs_display_on_bounds_change: bool,
     /// `CGImageRef*`
@@ -126,6 +127,7 @@ pub const CLASSES: ClassExports = objc_classes! {
         opacity: 1.0,
         background_color: None, // transparency
         corner_radius: 0.0,
+        masks_to_bounds: false,
         needs_display: false,
         needs_display_on_bounds_change: false,
         contents: nil,
@@ -316,6 +318,13 @@ pub const CLASSES: ClassExports = objc_classes! {
 }
 - (())setOpaque:(bool)opaque {
     env.objc.borrow_mut::<CALayerHostObject>(this).opaque = opaque;
+}
+
+- (bool)masksToBounds {
+    env.objc.borrow::<CALayerHostObject>(this).masks_to_bounds
+}
+- (())setMasksToBounds:(bool)masks_to_bounds {
+    env.objc.borrow_mut::<CALayerHostObject>(this).masks_to_bounds = masks_to_bounds;
 }
 
 - (f32)opacity {
