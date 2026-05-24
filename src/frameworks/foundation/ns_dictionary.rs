@@ -638,6 +638,17 @@ pub const CLASSES: ClassExports = objc_classes! {
 - (NSUInteger)count {
     env.objc.borrow::<DictionaryHostObject>(this).count
 }
+
+- (crate::mem::ConstVoidPtr)bytes {
+    log!("HACK: [(NSDictionary*) {:?} bytes] called. Returning null pointer.", this);
+    crate::mem::Ptr::null()
+}
+
+- (NSUInteger)length {
+    log!("HACK: [(NSDictionary*) {:?} length] called. Returning 0.", this);
+    0
+}
+
 - (id)objectForKey:(id)key {
     let host_obj: DictionaryHostObject = std::mem::take(env.objc.borrow_mut(this));
     let res = host_obj.lookup(env, key);
@@ -814,7 +825,12 @@ pub const CLASSES: ClassExports = objc_classes! {
 }
 
 - (())removeObjectForKey:(id)key {
-    assert!(!key.is_null());
+    // Hack that bypasses the panic and just ignores the removal if the key is nil
+    if key == nil {
+        log!("HACK: Tolerating [(NSMutableDictionary*){:?} removeObjectForKey:nil]", this);
+        return;
+    }
+
     let mut host_obj: DictionaryHostObject = std::mem::take(env.objc.borrow_mut(this));
     host_obj.remove(env, key);
     *env.objc.borrow_mut(this) = host_obj;

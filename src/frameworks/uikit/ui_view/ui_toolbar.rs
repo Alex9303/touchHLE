@@ -5,7 +5,7 @@
  */
 //! `UIToolbar`.
 
-use crate::objc::{id, objc_classes, ClassExports, nil};
+use crate::objc::{id, msg_class, objc_classes, ClassExports};
 
 pub const CLASSES: ClassExports = objc_classes! {
 
@@ -19,8 +19,8 @@ pub const CLASSES: ClassExports = objc_classes! {
 }
 
 - (id)items {
-    // TODO
-    nil
+    log!("TODO: [(UIToolbar*) {:?} items]", this);
+    msg_class![env; NSArray array]
 }
 
 - (())setBarStyle:(i32)_style { // UIBarStyle

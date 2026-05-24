@@ -211,6 +211,14 @@ pub const CLASSES: ClassExports = objc_classes! {
     autorelease(env, new)
 }
 
++ (id)numberWithUnsignedLong:(NSUInteger)value {
+    // TODO: for greater efficiency we could return a static-lifetime value
+
+    let new: id = msg![env; this alloc];
+    let new: id = msg![env; new initWithUnsignedLong:value];
+    autorelease(env, new)
+}
+
 + (id)numberWithInt:(i32)value {
     // TODO: for greater efficiency we could return a static-lifetime value
 
@@ -329,6 +337,11 @@ pub const CLASSES: ClassExports = objc_classes! {
     this
 }
 
+- (id)initWithUnsignedLong:(NSUInteger)value {
+    *env.objc.borrow_mut(this) = NSNumberHostObject::UnsignedInt(value as u32);
+    this
+}
+
 - (id)initWithInt:(i32)value {
     *env.objc.borrow_mut(this) = NSNumberHostObject::Int(value);
     this
@@ -378,6 +391,10 @@ pub const CLASSES: ClassExports = objc_classes! {
 
 - (i32)longValue {
     env.objc.borrow::<NSNumberHostObject>(this).as_int()
+}
+
+- (NSUInteger)unsignedLongValue {
+    env.objc.borrow::<NSNumberHostObject>(this).as_unsigned_int()
 }
 
 - (f32)floatValue {

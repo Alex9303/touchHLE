@@ -6,8 +6,8 @@
 //! `NSHTTPCookie`.
 
 use crate::objc::{
-    autorelease, id, msg, msg_super, nil, objc_classes, release, retain, ClassExports, HostObject,
-    NSZonePtr,
+    autorelease, id, msg, msg_class, msg_super, nil, objc_classes, release, retain,
+    ClassExports, HostObject, NSZonePtr,
 };
 
 struct NSHTTPCookieHostObject {
@@ -36,12 +36,12 @@ pub const CLASSES: ClassExports = objc_classes! {
 
 + (id)cookiesWithResponseHeaderFields:(id)header_fields forURL:(id)url {
     log!("TODO: [(NSHTTPCookie) cookiesWithResponseHeaderFields:{:?} forURL:{:?}]", header_fields, url);
-    nil
+    msg_class![env; NSArray array]
 }
 
 + (id)requestHeaderFieldsWithCookies:(id)cookies {
     log!("TODO: [(NSHTTPCookie) requestHeaderFieldsWithCookies:{:?}]", cookies);
-    nil
+    msg_class![env; NSDictionary dictionary]
 }
 
 - (())dealloc {
@@ -65,27 +65,27 @@ pub const CLASSES: ClassExports = objc_classes! {
 
 - (id)domain {
     log!("TODO: [(NSHTTPCookie*) {:?} domain]", this);
-    nil
+    msg_class![env; NSString string]
 }
 
 - (id)path {
     log!("TODO: [(NSHTTPCookie*) {:?} path]", this);
-    nil
+    msg_class![env; NSString string]
 }
 
 - (id)portList {
     log!("TODO: [(NSHTTPCookie*) {:?} portList]", this);
-    nil
+    msg_class![env; NSString string]
 }
 
 - (id)name {
     log!("TODO: [(NSHTTPCookie*) {:?} name]", this);
-    nil
+    msg_class![env; NSString string]
 }
 
 - (id)value {
     log!("TODO: [(NSHTTPCookie*) {:?} value]", this);
-    nil
+    msg_class![env; NSString string]
 }
 
 - (u64)version {
@@ -120,12 +120,12 @@ pub const CLASSES: ClassExports = objc_classes! {
 
 - (id)comment {
     log!("TODO: [(NSHTTPCookie*) {:?} comment]", this);
-    nil
+    msg_class![env; NSString string]
 }
 
 - (id)commentURL {
     log!("TODO: [(NSHTTPCookie*) {:?} commentURL]", this);
-    nil
+    msg_class![env; NSString string]
 }
 
 @end

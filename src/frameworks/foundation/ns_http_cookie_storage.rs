@@ -6,7 +6,7 @@
 //! `NSHTTPCookieStorage`.
 
 use crate::objc::{
-    id, msg, nil, objc_classes, ClassExports, HostObject, NSZonePtr,
+    id, msg, msg_class, objc_classes, ClassExports, HostObject, NSZonePtr,
 };
 
 #[derive(Default)]
@@ -70,7 +70,7 @@ pub const CLASSES: ClassExports = objc_classes! {
 
 - (id)cookies {
     log!("TODO: [(NSHTTPCookieStorage*) {:?} cookies]", this);
-    nil
+    msg_class![env; NSArray array]
 }
 
 - (())getCookiesForTask:(id)task completionHandler:(id)handler {
@@ -79,12 +79,12 @@ pub const CLASSES: ClassExports = objc_classes! {
 
 - (id)cookiesForURL:(id)url {
     log!("TODO: [(NSHTTPCookieStorage*) {:?} cookiesForURL:{:?}]", this, url);
-    nil
+    msg_class![env; NSArray array]
 }
 
 - (id)sortedCookiesUsingDescriptors:(id)sortDescriptors {
     log!("TODO: [(NSHTTPCookieStorage*) {:?} sortedCookiesUsingDescriptors:{:?}]", this, sortDescriptors);
-    nil
+    msg_class![env; NSArray array]
 }
 
 @end

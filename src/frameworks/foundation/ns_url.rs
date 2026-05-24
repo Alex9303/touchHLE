@@ -84,12 +84,13 @@ pub const CLASSES: ClassExports = objc_classes! {
 
 - (id)initFileURLWithPath:(id)path // NSString*
               isDirectory:(bool)_is_dir {
-    // FIXME: this does not resolve relative paths to be absolute!
-    // TODO: this does not strip the file:/// prefix!
-    assert!(!to_rust_string(env, path).starts_with("file:"));
-    let path = msg![env; path stringByExpandingTildeInPath];
-    let path: id = msg![env; path copy];
-    *env.objc.borrow_mut(this) = NSURLHostObject::FileURL { ns_string: path, working_directory: env.fs.working_directory().into() };
+    let path_rust = to_rust_string(env, path);
+    // Tolerate file:/// prefix just in case
+    let path_rust = path_rust.strip_prefix("file://").unwrap_or(&path_rust);
+    let clean_path: id = from_rust_string(env, path_rust.to_string());
+    let expanded_path: id = msg![env; clean_path stringByExpandingTildeInPath];
+    let final_path: id = msg![env; expanded_path copy];
+    *env.objc.borrow_mut(this) = NSURLHostObject::FileURL { ns_string: final_path, working_directory: env.fs.working_directory().into() };
     this
 }
 
@@ -97,11 +98,8 @@ pub const CLASSES: ClassExports = objc_classes! {
     if url == nil {
         return nil;
     }
-
-    // FIXME: this should parse the URL
-    assert!(!to_rust_string(env, url).starts_with("file:")); // TODO
-    let url: id = msg![env; url copy];
-    *env.objc.borrow_mut(this) = NSURLHostObject::OtherURL { ns_string: url };
+    let url_copy: id = msg![env; url copy];
+    *env.objc.borrow_mut(this) = NSURLHostObject::OtherURL { ns_string: url_copy };
     this
 }
 
@@ -128,15 +126,21 @@ pub const CLASSES: ClassExports = objc_classes! {
 }
 
 - (id)path {
-    match *env.objc.borrow(this) {
-        NSURLHostObject::FileURL { ns_string, .. } => ns_string,
+    match env.objc.borrow(this) {
+        NSURLHostObject::FileURL { ns_string, .. } => *ns_string,
         NSURLHostObject::OtherURL { ns_string } => {
-            // TODO: Support full URLs, not only ones that are just a path.
-            // FIXME: This should do unescaping.
-            // TODO: Avoid copy.
-            assert!(to_rust_string(env, ns_string).starts_with('/'));
-            ns_string
-        },
+            let s = to_rust_string(env, *ns_string);
+            if let Some(idx) = s.find("://") {
+                let rest = &s[idx + 3..];
+                if let Some(slash_idx) = rest.find('/') {
+                    let path_query = &rest[slash_idx..];
+                    let path = path_query.split('?').next().unwrap_or(path_query);
+                    let path_ns = from_rust_string(env, path.to_string());
+                    return autorelease(env, path_ns);
+                }
+            }
+            nil
+        }
     }
 }
 
@@ -188,6 +192,77 @@ pub const CLASSES: ClassExports = objc_classes! {
     };
     let path: id = msg![env; ns_string stringByDeletingLastPathComponent];
     msg_class![env; NSURL fileURLWithPath:path]
+}
+
+- (id)scheme {
+    match env.objc.borrow(this) {
+        NSURLHostObject::FileURL { .. } => get_static_str(env, "file"),
+        NSURLHostObject::OtherURL { ns_string } => {
+            let s = to_rust_string(env, *ns_string);
+            if let Some(idx) = s.find("://") {
+                let scheme_ns = from_rust_string(env, s[..idx].to_string());
+                autorelease(env, scheme_ns)
+            } else {
+                nil
+            }
+        }
+    }
+}
+
+- (id)host {
+    match env.objc.borrow(this) {
+        NSURLHostObject::FileURL { .. } => get_static_str(env, "localhost"),
+        NSURLHostObject::OtherURL { ns_string } => {
+            let s = to_rust_string(env, *ns_string);
+            if let Some(idx) = s.find("://") {
+                let rest = &s[idx + 3..];
+                let host_port = rest.split('/').next().unwrap_or(rest);
+                let host = host_port.split(':').next().unwrap_or(host_port);
+                if !host.is_empty() {
+                    let host_ns = from_rust_string(env, host.to_string());
+                    return autorelease(env, host_ns);
+                }
+            }
+            nil
+        }
+    }
+}
+
+- (id)port {
+    match env.objc.borrow(this) {
+        NSURLHostObject::FileURL { .. } => nil,
+        NSURLHostObject::OtherURL { ns_string } => {
+            let s = to_rust_string(env, *ns_string);
+            if let Some(idx) = s.find("://") {
+                let rest = &s[idx + 3..];
+                let host_port = rest.split('/').next().unwrap_or(rest);
+                if let Some(colon_idx) = host_port.find(':') {
+                    let port_str = &host_port[colon_idx + 1..];
+                    if let Ok(port_num) = port_str.parse::<u32>() {
+                        let num_obj: id = msg_class![env; NSNumber numberWithUnsignedInt:port_num];
+                        return num_obj;
+                    }
+                }
+            }
+            nil
+        }
+    }
+}
+
+- (id)query {
+    match env.objc.borrow(this) {
+        NSURLHostObject::FileURL { .. } => nil,
+        NSURLHostObject::OtherURL { ns_string } => {
+            let s = to_rust_string(env, *ns_string);
+            if let Some(idx) = s.find('?') {
+                let query_fragment = &s[idx + 1..];
+                let query = query_fragment.split('#').next().unwrap_or(query_fragment);
+                let query_ns = from_rust_string(env, query.to_string());
+                return autorelease(env, query_ns);
+            }
+            nil
+        }
+    }
 }
 
 // TODO: more constructors, more accessors
